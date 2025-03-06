@@ -22,11 +22,17 @@
                     <i class="fas fa-mouse-pointer"></i> Нажми меня!
                 </button>
                 <p id="score">Клики: 0</p>
-                <div id="upgrade-shop" class="shop">
+
+                <!-- Кнопка для открытия магазина -->
+                <button id="shop-btn" class="shop-btn">
+                    <i class="fas fa-store"></i> Магазин
+                </button>
+
+                <!-- Магазин улучшений, скрыт по умолчанию -->
+                <div id="upgrade-shop" class="shop hidden">
                     <h2>Магазин улучшений</h2>
                     <div class="upgrade">
                         <button id="auto-clicker" class="upgrade-btn">
-                            <!-- Иконка для автокликера -->
                             <i class="fas fa-cogs"></i> Автокликер (Стоимость: 100)
                         </button>
                         <p>Куплено: <span id="auto-clicker-count">0</span></p>
@@ -39,7 +45,6 @@
                 <div id="messages"></div>
                 <textarea id="message-input" placeholder="Введите сообщение"></textarea>
                 <button id="send-btn">
-                    <!-- Иконка для отправки сообщения -->
                     <i class="fas fa-paper-plane"></i> Отправить
                 </button>
             </div>
