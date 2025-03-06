@@ -1,60 +1,102 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMIRTAP - Кликер</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="https://example.com/icon.png" type="image/png">
-    <!-- Подключаем иконки с Flaticon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>SAMIRTAP</h1>
-        </header>
+let clicks = 0;
+let autoClickerCount = 0;
+let autoClickerCost = 100;
+let messageHistory = [];
 
-        <main>
-            <div class="game-section">
-                <button id="clicker-btn" class="clicker-btn">
-                    <!-- Иконка для кнопки кликера -->
-                    <i class="fas fa-mouse-pointer"></i> Нажми меня!
-                </button>
-                <p id="score">Клики: 0</p>
+// Загрузка сохраненных данных при старте
+window.onload = () => {
+    const savedMessages = localStorage.getItem('messages');
+    if (savedMessages) {
+        messageHistory = JSON.parse(savedMessages);
+        updateChat();
+    }
 
-                <!-- Кнопка для открытия магазина -->
-                <button id="shop-btn" class="shop-btn">
-                    <i class="fas fa-store"></i> Магазин
-                </button>
+    // Загружаем автокликер
+    const savedAutoClicker = localStorage.getItem('autoClicker');
+    if (savedAutoClicker) {
+        autoClickerCount = parseInt(savedAutoClicker);
+        document.getElementById('auto-clicker-count').textContent = autoClickerCount;
+    }
 
-                <!-- Магазин улучшений, скрыт по умолчанию -->
-                <div id="upgrade-shop" class="shop hidden">
-                    <h2>Магазин улучшений</h2>
-                    <div class="upgrade">
-                        <button id="auto-clicker" class="upgrade-btn">
-                            <i class="fas fa-cogs"></i> Автокликер (Стоимость: 100)
-                        </button>
-                        <p>Куплено: <span id="auto-clicker-count">0</span></p>
-                    </div>
-                </div>
-            </div>
+    updateScore();
+};
 
-            <div class="chat-section">
-                <h2>Чат</h2>
-                <div id="messages"></div>
-                <textarea id="message-input" placeholder="Введите сообщение"></textarea>
-                <button id="send-btn">
-                    <i class="fas fa-paper-plane"></i> Отправить
-                </button>
-            </div>
-        </main>
+// Обновить счет
+function updateScore() {
+    document.getElementById('score').textContent = `Клики: ${clicks}`;
+}
 
-        <footer>
-            <p>&copy; 2025 SAMIRTAP. Все права защищены.</p>
-        </footer>
-    </div>
+// Кнопка клика
+document.getElementById('clicker-btn').addEventListener('click', () => {
+    clicks++;
+    updateScore();
+});
 
-    <script src="script.js"></script>
-</body>
-</html>
+// Магазин улучшений
+document.getElementById('auto-clicker').addEventListener('click', () => {
+    if (clicks >= autoClickerCost) {
+        clicks -= autoClickerCost;
+        autoClickerCount++;
+        autoClickerCost = Math.floor(autoClickerCost * 1.5); // Увеличиваем стоимость
+        document.getElementById('auto-clicker-count').textContent = autoClickerCount;
+        updateScore();
+        localStorage.setItem('autoClicker', autoClickerCount);  // Сохраняем состояние автокликера
+    }
+});
+
+// Показ магазина
+document.getElementById('shop-btn').addEventListener('click', () => {
+    const shop = document.getElementById('upgrade-shop');
+    if (shop.classList.contains('hidden')) {
+        shop.classList.remove('hidden');
+        setTimeout(() => {
+            shop.style.opacity = 1;
+        }, 10); // Для анимации
+    } else {
+        shop.style.opacity = 0;
+        setTimeout(() => {
+            shop.classList.add('hidden');
+        }, 500);
+    }
+});
+
+// Автокликер
+setInterval(() => {
+    if (autoClickerCount > 0) {
+        clicks += autoClickerCount;
+        updateScore();
+    }
+}, 1000);
+
+// Чат
+document.getElementById('send-btn').addEventListener('click', () => {
+    let message = document.getElementById('message-input').value;
+    if (message) {
+        messageHistory.push({ name: 'Игрок', message });
+        updateChat();
+        saveMessages();
+    }
+    document.getElementById('message-input').value = '';
+});
+
+// Обновление чата
+function updateChat() {
+    let messagesContainer = document.getElementById('messages');
+    messagesContainer.innerHTML = '';
+    messageHistory.forEach(msg => {
+        let messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.innerHTML = `
+            <div class="message-header">${msg.name}</div>
+            <div class="message-text">${msg.message}</div>
+        `;
+        messagesContainer.appendChild(messageElement);
+    });
+    messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокрутка вниз
+}
+
+// Сохранение сообщений в JSON
+function saveMessages() {
+    const messagesJson = JSON.stringify(messageHistory, null, 2);
+    localStorage.setItem('messages', messagesJson);
+}
